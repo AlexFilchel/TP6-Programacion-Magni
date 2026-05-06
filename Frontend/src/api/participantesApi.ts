@@ -51,7 +51,7 @@ export async function actualizarParticipante(
   return respuesta.json();
 }
 
-export async function eliminarParticipante(id: number): Promise<void> {   //para que es el void?
+export async function eliminarParticipante(id: number): Promise<void> {  
   const respuesta = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
   });

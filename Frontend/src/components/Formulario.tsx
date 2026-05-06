@@ -18,6 +18,10 @@ type DatosFormulario = {
   aceptaTerminos: boolean;
 };
 
+type FormularioProps = {
+  onSuccess?: () => void | Promise<void>;
+};
+
 const datosIniciales: DatosFormulario = {
   nombre: "",
   email: "",
@@ -29,7 +33,7 @@ const datosIniciales: DatosFormulario = {
   aceptaTerminos: false,
 };
 
-function Formulario() {
+function Formulario({ onSuccess }: FormularioProps) {
   const { agregar, editar, participanteEnEdicion, limpiarEdicion } = useParticipantes();
   const [formulario, setFormulario] = useState<DatosFormulario>(datosIniciales);
   const [estoyEditando, setEstoyEditando] = useState(false);
@@ -121,11 +125,9 @@ function Formulario() {
 
       setTimeout(() => {
         setMostrarNotificacion(false);
-        const listado = document.getElementById("lista-participantes");
-        if (listado) {
-          listado.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }, 2000);
+        void onSuccess?.();
+      }, 1000);
+      
     } catch (error) {
       setTipoNotificacion("error");
       setMostrarNotificacion(true);
