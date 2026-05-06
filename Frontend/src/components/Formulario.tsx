@@ -20,6 +20,7 @@ type DatosFormulario = {
 
 type FormularioProps = {
   onSuccess?: () => void | Promise<void>;
+  onCancelar?: () => void | Promise<void>;
 };
 
 const datosIniciales: DatosFormulario = {
@@ -33,7 +34,7 @@ const datosIniciales: DatosFormulario = {
   aceptaTerminos: false,
 };
 
-function Formulario({ onSuccess }: FormularioProps) {
+function Formulario({ onSuccess, onCancelar }: FormularioProps) {
   const { agregar, editar, participanteEnEdicion, limpiarEdicion } = useParticipantes();
   const [formulario, setFormulario] = useState<DatosFormulario>(datosIniciales);
   const [estoyEditando, setEstoyEditando] = useState(false);
@@ -143,6 +144,7 @@ function Formulario({ onSuccess }: FormularioProps) {
     limpiarEdicion();
     setFormulario(datosIniciales);
     setEstoyEditando(false);
+    void onCancelar?.();
   };
 
   return (

@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 import { useParticipantes } from "../context/ParticipantesContext";
 import type { DatosParticipante } from "../models/Participante";
 
@@ -12,14 +14,11 @@ function ParticipanteCard({
 }: {
   participante: DatosParticipante;
 }) {
-  const { eliminar, cargarEdicion } = useParticipantes();
+  const { eliminar } = useParticipantes();
+  const navigate = useNavigate();
 
-  const manejarEditar = (participante: DatosParticipante) => {
-    cargarEdicion(participante);
-    const formulario = document.getElementById("formulario-participante");
-    if (formulario) {
-      formulario.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+  const manejarEditar = () => {
+    navigate(`/editar/${participante.id}`);
   };
 
   return (
@@ -39,7 +38,8 @@ function ParticipanteCard({
       </p>
 
       <p className="mb-1">
-        <span className="font-semibold">Modalidad:</span> {participante.modalidad}
+        <span className="font-semibold">Modalidad:</span>{" "}
+        {participante.modalidad}
       </p>
 
       <p className="mb-1">
@@ -57,13 +57,15 @@ function ParticipanteCard({
 
       <div className="flex gap-2 mt-3">
         <button
-          onClick={() => manejarEditar(participante)}
+          type="button"
+          onClick={manejarEditar}
           className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
         >
           Editar
         </button>
 
         <button
+          type="button"
           onClick={() => void eliminar(participante.id)}
           className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
         >

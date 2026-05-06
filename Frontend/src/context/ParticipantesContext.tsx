@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useReducer,
@@ -29,14 +30,16 @@ type Action =
 type ParticipantesState = {
   participantes: DatosParticipante[];
   participanteEnEdicion: DatosParticipante | null;
+  cargandoParticipantes: boolean;
 };
 
 function participantesReducer(state: ParticipantesState, action: Action): ParticipantesState {
   switch (action.type) {
     case "GET_PARTICIPANTES":
-      return {
+    return {
         ...state,
         participantes: action.payload,
+        cargandoParticipantes: false,
       };
 
     case "AGREGAR":
@@ -82,14 +85,17 @@ function participantesReducer(state: ParticipantesState, action: Action): Partic
 const estadoInicial: ParticipantesState = {
   participantes: [],
   participanteEnEdicion: null,
+  cargandoParticipantes: true,
 };
 
 type ParticipantesContextType = {
   participantes: DatosParticipante[];
   participanteEnEdicion: DatosParticipante | null;
+  cargandoParticipantes: boolean;
   agregar: (participante: ParticipanteCreate) => Promise<void>;
   eliminar: (id: number) => Promise<void>;
   editar: (participante: DatosParticipante) => Promise<void>;
+  buscarParticipantePorId: (id: number) => DatosParticipante | undefined;
   cargarEdicion: (participante: DatosParticipante) => void;
   limpiarEdicion: () => void;
   resetear: () => Promise<void>;
@@ -144,22 +150,33 @@ export function ParticipantesProvider({ children }: ParticipantesProviderProps) 
     await cargarParticipantes();
   };
 
-  const cargarEdicion = (participante: DatosParticipante) => {
-    dispatch({ type: "CARGAR_EDICION", payload: participante });
-  };
+  const buscarParticipantePorId = useCallback(
+  (id: number) => {
+    return state.participantes.find(
+      (participante) => participante.id === id,
+    );
+  },
+  [state.participantes],
+  );
 
-  const limpiarEdicion = () => {
+  const cargarEdicion = useCallback((participante: DatosParticipante) => {
+    dispatch({ type: "CARGAR_EDICION", payload: participante });
+  }, []);
+
+  const limpiarEdicion = useCallback(() => {
     dispatch({ type: "LIMPIAR_EDICION" });
-  };
+  }, []);
 
   return (
     <ParticipantesContext.Provider
       value={{
         participantes: state.participantes,
         participanteEnEdicion: state.participanteEnEdicion,
+        cargandoParticipantes: state.cargandoParticipantes,
         agregar,
         eliminar,
         editar,
+        buscarParticipantePorId,
         cargarEdicion,
         limpiarEdicion,
         resetear,

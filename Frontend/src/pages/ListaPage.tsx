@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 
 import Filtros from "../components/Filtros";
 import ParticipanteCard from "../components/ParticipanteCard";
@@ -69,12 +68,6 @@ function ListaPage() {
             Cargar datos de prueba
           </button>
 
-          <Link
-            to="/nuevo"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            Nuevo participante
-          </Link>
         </div>
       </div>
 

@@ -1,105 +1,79 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { NavLink, Route, Routes } from "react-router-dom";
 
-import Formulario from "./components/Formulario";
-import Filtros from "./components/Filtros";
-import ParticipanteCard from "./components/ParticipanteCard";
-import {
-  filtrosIniciales,
-  type FiltrosState,
-} from "./components/filtrosConfig";
-import { useParticipantes } from "./context/ParticipantesContext";
+import EditarPage from "./pages/EditarPage";
+import FormularioPage from "./pages/FormularioPage";
+import ListaPage from "./pages/ListaPage";
 
 function App() {
-  const { participantes, cargarDatosEjemplo } = useParticipantes();
-  const [filtros, setFiltros] = useState<FiltrosState>(filtrosIniciales);
-  const [mostrarNotificacion, setMostrarNotificacion] = useState(false);
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
-  const limpiarFiltros = () => {
-    setFiltros(filtrosIniciales);
+  const cerrarMenu = () => {
+    setMenuAbierto(false);
   };
 
-  const cargarDatos = async () => {
-    await cargarDatosEjemplo();
-    setFiltros(filtrosIniciales);
-    setMostrarNotificacion(true);
-    setTimeout(() => {
-      setMostrarNotificacion(false);
-      const listado = document.getElementById("lista-participantes");
-      if (listado) {
-        listado.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, 2000);
+  const obtenerClaseNavLink = ({ isActive }: { isActive: boolean }) => {
+    return `px-4 py-2 rounded transition ${
+      isActive
+        ? "bg-blue-600 text-white"
+        : "bg-slate-200 text-slate-800 hover:bg-slate-300"
+    }`;
   };
-
-  const participantesFiltrados = useMemo(() => {
-    return participantes.filter((participante) => {
-      const coincideNombre = participante.nombre
-        .toLowerCase()
-        .includes(filtros.busqueda.toLowerCase());
-
-      const coincideModalidad =
-        filtros.modalidad === "Todas" ||
-        participante.modalidad === filtros.modalidad;
-
-      const coincideNivel =
-        filtros.nivel === "Todos" || participante.nivel === filtros.nivel;
-
-      return coincideNombre && coincideModalidad && coincideNivel;
-    });
-  }, [participantes, filtros]);
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
-      {mostrarNotificacion && (
-        <div className="fixed top-4 right-4 px-4 py-3 rounded shadow-lg text-white z-50 bg-blue-500">
-          Datos de prueba cargados correctamente
+      <header className="bg-white shadow rounded p-4">
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-3xl font-bold">Registro de Participantes</h1>
+
+          <button
+            type="button"
+            onClick={() => setMenuAbierto((prev) => !prev)}
+            className="md:hidden bg-slate-200 text-slate-800 px-3 py-2 rounded hover:bg-slate-300 transition"
+            aria-label="Abrir menú"
+          >
+            ☰
+          </button>
+
+          <nav className="hidden md:flex gap-2">
+            <NavLink to="/" className={obtenerClaseNavLink}>
+              Listado
+            </NavLink>
+
+            <NavLink to="/nuevo" className={obtenerClaseNavLink}>
+              Nuevo participante
+            </NavLink>
+          </nav>
         </div>
-      )}
 
-      <h1 className="text-3xl font-bold text-center">
-        Registro de Participantes
-      </h1>
+        {menuAbierto && (
+          <nav className="md:hidden flex flex-col gap-2 mt-4">
+            <NavLink
+              to="/"
+              onClick={cerrarMenu}
+              className={obtenerClaseNavLink}
+            >
+              Listado
+            </NavLink>
 
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={() => void cargarDatos()}
-          className="bg-amber-500 text-white px-4 py-2 rounded hover:bg-amber-600 transition"
-        >
-          Cargar datos de prueba
-        </button>
-      </div>
-
-      <Formulario />
-
-      <Filtros
-        busqueda={filtros.busqueda}
-        modalidad={filtros.modalidad}
-        nivel={filtros.nivel}
-        onCambiarFiltros={setFiltros}
-        onLimpiar={limpiarFiltros}
-        totalParticipantes={participantes.length}
-        participantesFiltrados={participantesFiltrados.length}
-      />
-
-      <section id="lista-participantes">
-        <h2 className="text-xl font-semibold mb-4">Lista de participantes</h2>
-
-        {participantesFiltrados.length === 0 ? (
-          <div className="bg-white shadow rounded p-6 text-center text-slate-600">
-            No hay participantes
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {participantesFiltrados.map((participante) => (
-              <ParticipanteCard
-                key={participante.id}
-                participante={participante}
-              />
-            ))}
-          </div>
+            <NavLink
+              to="/nuevo"
+              onClick={cerrarMenu}
+              className={obtenerClaseNavLink}
+            >
+              Nuevo participante
+            </NavLink>
+          </nav>
         )}
-      </section>
+      </header>
+
+      <main>
+        <Routes>
+          <Route path="/" element={<ListaPage />} />
+          <Route path="/nuevo" element={<FormularioPage />} />
+          <Route path="/editar/:id" element={<EditarPage />} />
+        </Routes>
+      </main>
     </div>
   );
 }
